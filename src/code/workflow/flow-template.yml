@@ -1,0 +1,59 @@
+Type: Workflow
+Name: {{ fnfFlowName }}
+SpecVersion: V3
+StartAt: 接单
+States:
+  - Type: Task
+    Name: 接单
+    Action: HTTP:Request
+    TaskMode: WaitForCustomCallback
+    Description: null
+    InputConstructor:
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    Parameters:
+      method: GET
+      url.$: format('${DOMAIN_NAME}/set_status?flow_name={}&status=ACCEPTED',$Input.flowName)
+      headers: {}
+    Timeout: null
+    OutputConstructor:
+      output: 已接单
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    Next: 制作
+  - Type: Task
+    Name: 制作
+    Action: HTTP:Request
+    TaskMode: WaitForCustomCallback
+    Description: null
+    InputConstructor:
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    Parameters:
+      method: GET
+      url.$: format('${DOMAIN_NAME}/set_status?flow_name={}&status=PRODUCING',$Input.flowName)
+      headers: {}
+    Timeout: null
+    OutputConstructor:
+      output: 制作中
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    Next: 交付
+  - Type: Task
+    Name: 交付
+    Action: HTTP:Request
+    TaskMode: WaitForCustomCallback
+    Description: null
+    InputConstructor:
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    Parameters:
+      method: GET
+      url.$: format('${DOMAIN_NAME}/set_status?flow_name={}&status=DELIVERED',$Input.flowName)
+      headers: {}
+    Timeout: null
+    OutputConstructor:
+      output: 已交付
+      flowName.$: $Context.Workflow.Flow
+      accountId.$: $Context.Workflow.AccountId
+    End: true

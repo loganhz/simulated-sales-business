@@ -1,0 +1,73 @@
+Type: Application
+Name: simulated-sales-business
+Version: 0.0.5
+Provider:
+  - 阿里云
+Description: 基于 CloudFlow + FC 模拟销售业务-自部署版
+HomePage:
+Tags:
+  - workflow
+  - 工作流
+  - 函数计算
+Category: 新手入门
+Service:
+  工作流:
+    Authorities:
+      - AliyunFnFFullAccess
+  函数计算:
+    Authorities:
+      - AliyunFCFullAccess
+  硬盘挂载:
+    Authorities:
+      - AliyunNASFullAccess
+  VPC:
+    Authorities:
+      - AliyunVPCFullAccess
+  其它:
+    Authorities:
+      - AliyunECSFullAccess
+Parameters:
+  type: object
+  additionalProperties: false
+  required:
+    - region
+    - serviceName
+    - serviceRoleArn
+    - fnfFlowName
+  properties:
+    region:
+      title: 地域
+      type: string
+      default: cn-hangzhou
+      description: 创建应用所在的地区
+      enum:
+        - cn-hangzhou
+        - cn-qingdao
+    serviceName:
+      title: 函数服务名
+      type: string
+      default: simulated-sales-business-${default-suffix}
+      pattern: "^[a-zA-Z_][a-zA-Z0-9-_]{0,127}$"
+      description: 应用所属的函数计算服务
+    serviceRoleArn:
+      title: 函数服务角色
+      type: string
+      default: ''
+      pattern: '^acs:ram::[0-9]*:role/.*$'
+      description: |
+        函数计算访问云服务时使用的服务角色，需要填写具体的角色ARN，格式为acs:ram::$account-id>:role/$role-name。例如：acs:ram::14310000000:role/aliyunfcdefaultrole。
+        如果您没有特殊要求，可以使用函数计算提供的默认的服务角色，即AliyunFCDefaultRole, 并增加 AliyunFCFullAccess 权限。如果您首次使用函数计算，可以访问 https://fcnext.console.aliyun.com 进行授权。
+        详细文档参考 https://help.aliyun.com/document_detail/181589.html#section-o93-dbr-z6o"
+      required: true
+      x-role:
+        name: fcdeployrole
+        service: fc
+        authorities:
+          - AliyunFCDefaultRolePolicy
+          - AliyunFnFFullAccess
+    fnfFlowName:
+      title: 工作流名称
+      type: string
+      default: ''
+      pattern: "^[a-zA-Z_][a-zA-Z0-9-_]{0,127}$"
+      description: CloudFlow 工作流名称。提示：您需要先创建 fnf-execution-default-role 角色。请点击此链接进行授权 https://ram.console.aliyun.com/role/commonAuthorize?request=%7B%22ReturnUrl%22%3A%22https%3A%2F%2Ffcnext.console.aliyun.com%2Fauthoration%3Fresponse%3D%7Bresponse%7D%22%2C%22Service%22%3A%22FNF%22%2C%22RoleName%22%3A%22fnf-execution-default-role%22%2C%22RoleDescription%22%3A%22RAM%20role%20that%20allows%20FnF%20to%20access%20user%20resources%20according%20to%20permission%20policy%22%2C%22SystemPolicyArray%22%3A%22AliyunFCInvocationAccess%22%7D
